@@ -46,13 +46,48 @@ class BooksApp extends React.Component {
         this.setState({read : read_books});
         this.setState({loadingRequest : false});
 
-        // all_books.map((book) => {
-        //   this.setState({book.shelf : })
-        // })
-        console.log(this.state);
       });
       console.log(response);
       console.log(all_books);
+  }
+
+
+  _moveBookShelves(id, currentShelf, finalShelf){
+
+    // PEGANDO A ID DO LIVRO BASEADO NO TITULO
+    // JA QUE NO Book COMPONENT TEMOS A INFORMACAO DO TITULO, AUTORES, PRATELEIRA
+    let book = this.state[currentShelf].find((book) => book.id == id);
+    console.log(book);
+
+    BooksAPI.update(book, finalShelf).then((data) => {
+      console.log(data);
+
+      // ATUALIZANDO O ESTADO DAS PRATELEIRAS
+      this.setState((previousState) => {
+        // TIRANDO DA PRATELEIRA ATUAL O LIVRO QUE VAMOS MOVER PARA A PRATELEIRA QUE ESCOLHEMOS
+        let bookToChangeShelves = previousState[currentShelf].find((book) => book.id == id);
+        console.log(bookToChangeShelves);
+
+        console.log(currentShelf);
+        let currentBookShelf = previousState[currentShelf].filter((book) => book.id != id);
+        console.log(currentBookShelf);
+
+        // COLOCANDO O LIVRO NA PRATELEIRA QUE ESCOLHEMOS
+        console.log(finalShelf);
+        if(finalShelf != "None"){
+          previousState[finalShelf].push(bookToChangeShelves);
+        }
+        
+        console.log(previousState[finalShelf]);
+
+        // ATUALIZANDO A PRATELEIRA EM QUE O LIVRO FOI RETIRADO
+        previousState[currentShelf] = currentBookShelf;
+        console.log(previousState[currentShelf]);
+
+        return previousState;
+      });
+    });
+
   }
 
   render() {
@@ -82,11 +117,11 @@ class BooksApp extends React.Component {
                     :
                     (
                       <ol className="books-grid">
-                      {this.state['currentlyReading'].map((book, index) => {
+                      {this.state['currentlyReading'].map((book) => {
                         return (
-                            <li key={index}>
-                              <Book book_title={book.title} book_authors={book.authors[0]} 
-                              book_cover={book.imageLinks.thumbnail} />
+                            <li key={book.id}>
+                              <Book book_title={book.title} book_authors={book.authors.join(" , ")} book_id={book.id}
+                              book_cover={book.imageLinks.thumbnail} book_shelf="currentlyReading" changeShelves={this._moveBookShelves.bind(this)} />
                             </li>
                         );
                       })}
@@ -110,11 +145,11 @@ class BooksApp extends React.Component {
                     :
                     (
                       <ol className="books-grid">
-                      {this.state['read'].map((book, index) => {
+                      {this.state['wantToRead'].map((book) => {
                         return (
-                            <li key={index}>
-                              <Book book_title={book.title} book_authors={book.authors[0]} 
-                              book_cover={book.imageLinks.thumbnail} />
+                            <li key={book.id}>
+                              <Book book_title={book.title} book_authors={book.authors.join(" , ")} book_id={book.id}
+                              book_cover={book.imageLinks.thumbnail} book_shelf="wantToRead" changeShelves={this._moveBookShelves.bind(this)} />
                             </li>
                         );
                       })}
@@ -138,11 +173,11 @@ class BooksApp extends React.Component {
                     :
                     (
                       <ol className="books-grid">
-                      {this.state['wantToRead'].map((book, index) => {
+                      {this.state['read'].map((book) => {
                         return (
-                            <li key={index}>
-                              <Book book_title={book.title} book_authors={book.authors[0]} 
-                              book_cover={book.imageLinks.thumbnail} />
+                            <li key={book.id}>
+                              <Book book_title={book.title} book_authors={book.authors.join(" , ")} book_id={book.id}
+                              book_cover={book.imageLinks.thumbnail} book_shelf="read" changeShelves={this._moveBookShelves.bind(this)} />
                             </li>
                         );
                       })}
