@@ -5,7 +5,7 @@ import SearchPage from './SearchPage.js'
 import Book from './Book.js'
 import { SyncLoader } from 'react-spinners'
 
-class App extends React.Component {
+class BooksApp extends React.Component {
   state = {
     /**
      * TODO: Instead of using this state variable to keep track of which page
@@ -41,10 +41,14 @@ class App extends React.Component {
         let wantToRead_books = all_books.filter((book) => {return book.shelf === "wantToRead"});
         let read_books = all_books.filter((book) => {return book.shelf === "read"});
         
-        this.setState({currentlyReading : currentlyReading_books, wantToRead : wantToRead_books,
-          read : read_books, loadingRequest : false});
+        this.setState({currentlyReading : currentlyReading_books});
+        this.setState({wantToRead : wantToRead_books});
+        this.setState({read : read_books});
+        this.setState({loadingRequest : false});
 
       });
+      console.log(response);
+      console.log(all_books);
   }
 
 
@@ -195,4 +199,4 @@ class App extends React.Component {
   }
 }
 
-export default App
+export default BooksApp
