@@ -6,63 +6,53 @@ import Book from './Book.js'
 
 export default class SearchPage extends React.Component{
 
+  // NO STATE DO COMPONENT TEMOS QUE TAMBEM TER OS LIVROS NA NOSSO PRATELEIRA, POIS ASSIM SERA POSSIVEL
+  // ATUALIZAR O SELECT DO LIVRO NA PESQUISA DE ACORDO COM A PRATELEIRA EM Q ESSE LIVRO ESTA
 	constructor(props){
 		super(props);
 		this.state = {
 			searchQuery: "",
-			booksQueried: []
+			booksQueried: [],
+      booksOnShelves: []
 		};
 	}
 
 	handleChange(event){
 		this.setState({searchQuery: event.target.value});
 		console.log(event.target.value);
+    console.log("LIVROS NAS PRATELEIRAS");
+    console.log(this.props.booksOnShelves);
+
+    // PEGANDO OS LIVROS QUE ESTAO NAS PRATELEIRAS E VERIFICANDO SE ESTAO ENTRE OS QUE RETORNARAM DA PESQUISA
+    // SE ESTIVEREM PRESENTES ENTAO ADICIONAMOS O FIELD shelf NO OBJECT Q REPRESENTA O LIVRO PARA, ASSIM,
+    // SER MOSTRADO NO <select />
+
 
 		BooksAPI.search(event.target.value).then((data) => {
 			console.log(data);
+
+      // PARA TODOS OS LIVROS DA PRATELEIRA
+      // SEPARAMOS UM NOVO ARRAY SE ELE ESTIVER PRESENTE NO CONJUNTO DOS LIVROS RETORNADOS DA PESQUISA
+      let commonBooksOnData = this.props.booksOnShelves.filter((book) => {
+        let book_matched = data.find((book_data) =>{
+          if(book_data.id == book.id){
+            return book;
+          }
+        });
+        return book_matched;
+      });
+      console.log("LIVROS EM COMUM");
+      console.log(commonBooksOnData);
+
+      let booksUpdated = Object.assign(data, commonBooksOnData);
+      console.log("MODIFICADOS");
+      console.log(data);
+      console.log(booksUpdated);
+
 			this.setState({booksQueried: data});
 			console.log(this.state.booksQueried);
 		});
 	}
-
-	_moveBookShelves(id, currentShelf, finalShelf){
-
-    // PEGANDO A ID DO LIVRO BASEADO NO TITULO
-    // JA QUE NO Book COMPONENT TEMOS A INFORMACAO DO TITULO, AUTORES, PRATELEIRA
-    let book = this.state.booksQueried.find((book) => book.id == id);
-    console.log(book);
-    console.log(finalShelf);
-    
-    BooksAPI.update(book, finalShelf).then((data) => {
-      console.log(data);
-
-      // // ATUALIZANDO O ESTADO DAS PRATELEIRAS
-      // this.setState((previousState) => {
-      //   // TIRANDO DA PRATELEIRA ATUAL O LIVRO QUE VAMOS MOVER PARA A PRATELEIRA QUE ESCOLHEMOS
-      //   let bookToChangeShelves = previousState[currentShelf].find((book) => book.id == id);
-      //   console.log(bookToChangeShelves);
-
-      //   console.log(currentShelf);
-      //   let currentBookShelf = previousState[currentShelf].filter((book) => book.id != id);
-      //   console.log(currentBookShelf);
-
-      //   // COLOCANDO O LIVRO NA PRATELEIRA QUE ESCOLHEMOS
-      //   console.log(finalShelf);
-      //   if(finalShelf != "None"){
-      //     previousState[finalShelf].push(bookToChangeShelves);
-      //   }
-        
-      //   console.log(previousState[finalShelf]);
-
-      //   // ATUALIZANDO A PRATELEIRA EM QUE O LIVRO FOI RETIRADO
-      //   previousState[currentShelf] = currentBookShelf;
-      //   console.log(previousState[currentShelf]);
-
-      //   return previousState;
-      // });
-    });
-
-  	}
 
 	render(){
 		return (
@@ -89,7 +79,11 @@ export default class SearchPage extends React.Component{
 	                return (
 	                    <li key={book.id}>
 	                      <Book book_title={book.title} book_authors={book.authors.join(" , ")} book_id={book.id}
-	                      book_cover={book.imageLinks.thumbnail} book_shelf="none" changeShelves={this._moveBookShelves.bind(this)} />
+	                      book_cover={book.imageLinks.thumbnail} book_shelf={book.shelf != undefined ? book.shelf : "none"} 
+                        changeShelves={(id, currentShelf, finalShelf) => {
+                          let book = this.state.booksQueried.find((book) => {return book.id == id});
+                          this.props.moveBookShelves(id, book, currentShelf, finalShelf);
+                        }} />
 	                    </li>
 	                );
 	            })}

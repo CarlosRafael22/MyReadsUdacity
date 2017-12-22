@@ -4,6 +4,7 @@ import './App.css'
 import SearchPage from './SearchPage.js'
 import Book from './Book.js'
 import { SyncLoader } from 'react-spinners'
+import { Link } from 'react-router-dom'
 
 class BooksApp extends React.Component {
   state = {
@@ -27,173 +28,115 @@ class BooksApp extends React.Component {
     }
   }
 
-  componentDidMount(){
-
-      let response = BooksAPI.getAll();
-      let all_books;
-      this.setState({read : []});
-      response.then((data) => {
-        all_books = data
-        console.log(all_books);
-
-        // DISTRIBUINDO OS LIVROS RETORNADOS DO SERVIDOR DE ACORDO COM A PRATELEIRA QUE ELE INICIALMENTE PERTENCE
-        let currentlyReading_books = all_books.filter((book) => {return book.shelf === "currentlyReading"});
-        let wantToRead_books = all_books.filter((book) => {return book.shelf === "wantToRead"});
-        let read_books = all_books.filter((book) => {return book.shelf === "read"});
-        
-        this.setState({currentlyReading : currentlyReading_books});
-        this.setState({wantToRead : wantToRead_books});
-        this.setState({read : read_books});
-        this.setState({loadingRequest : false});
-
-      });
-      console.log(response);
-      console.log(all_books);
-  }
-
-
-  _moveBookShelves(id, currentShelf, finalShelf){
-
-    // PEGANDO A ID DO LIVRO BASEADO NO TITULO
-    // JA QUE NO Book COMPONENT TEMOS A INFORMACAO DO TITULO, AUTORES, PRATELEIRA
-    let book = this.state[currentShelf].find((book) => book.id == id);
+  _gettingBookFromShelf(id, currentShelf, finalShelf){
+    let book = this.props[currentShelf].find((book) => book.id == id);
     console.log(book);
-
-    BooksAPI.update(book, finalShelf).then((data) => {
-      console.log(data);
-
-      // ATUALIZANDO O ESTADO DAS PRATELEIRAS
-      this.setState((previousState) => {
-        // TIRANDO DA PRATELEIRA ATUAL O LIVRO QUE VAMOS MOVER PARA A PRATELEIRA QUE ESCOLHEMOS
-        let bookToChangeShelves = previousState[currentShelf].find((book) => book.id == id);
-        console.log(bookToChangeShelves);
-
-        console.log(currentShelf);
-        let currentBookShelf = previousState[currentShelf].filter((book) => book.id != id);
-        console.log(currentBookShelf);
-
-        // COLOCANDO O LIVRO NA PRATELEIRA QUE ESCOLHEMOS
-        console.log(finalShelf);
-        if(finalShelf != "None"){
-          previousState[finalShelf].push(bookToChangeShelves);
-        }
-        
-        console.log(previousState[finalShelf]);
-
-        // ATUALIZANDO A PRATELEIRA EM QUE O LIVRO FOI RETIRADO
-        previousState[currentShelf] = currentBookShelf;
-        console.log(previousState[currentShelf]);
-
-        return previousState;
-      });
-    });
-
+    this.props.moveBookShelves(id, book, currentShelf, finalShelf);
   }
 
   render() {
 
+    console.log("MOSTRANDO O PROPS DO BooksApp");
+    console.log(this.props);
+
     return (
-      <div className="app">
-        {this.state.showSearchPage ? (
-          <SearchPage showSearchPage={ (searchState) => this.setState({ showSearchPage: searchState })} />
-        ) : (
-          <div className="list-books">
-            <div className="list-books-title">
-              <h1>MyReads</h1>
-            </div>
-            <div className="list-books-content">
-              <div>
-                <div className="bookshelf">
-                  <h2 className="bookshelf-title">Currently Reading</h2>
-                  <div className="bookshelf-books">
-                  {
-                    this.state.loadingRequest ? 
-                    (
-                      <div>
-                      <SyncLoader loading={true} />
-                      <p>Carregando sua prateleira</p>
-                      </div>
-                    )
-                    :
-                    (
-                      <ol className="books-grid">
-                      {this.state['currentlyReading'].map((book) => {
-                        return (
-                            <li key={book.id}>
-                              <Book book_title={book.title} book_authors={book.authors.join(" , ")} book_id={book.id}
-                              book_cover={book.imageLinks.thumbnail} book_shelf="currentlyReading" changeShelves={this._moveBookShelves.bind(this)} />
-                            </li>
-                        );
-                      })}
-                      
-                    </ol>
-                    )
-                  }                    
+      <div className="list-books">
+        <div className="list-books-title">
+          <h1>MyReads</h1>
+        </div>
+        <div className="list-books-content">
+          <div>
+            <div className="bookshelf">
+              <h2 className="bookshelf-title">Currently Reading</h2>
+              <div className="bookshelf-books">
+              {
+                this.props.loadingRequest ? 
+                (
+                  <div>
+                  <SyncLoader loading={true} />
+                  <p>Carregando sua prateleira</p>
                   </div>
-                </div>
-                <div className="bookshelf">
-                  <h2 className="bookshelf-title">Want to Read</h2>
-                  <div className="bookshelf-books">
-                    {
-                    this.state.loadingRequest ? 
-                    (
-                      <div>
-                      <SyncLoader loading={true} />
-                      <p>Carregando sua prateleira</p>
-                      </div>
-                    )
-                    :
-                    (
-                      <ol className="books-grid">
-                      {this.state['wantToRead'].map((book) => {
-                        return (
-                            <li key={book.id}>
-                              <Book book_title={book.title} book_authors={book.authors.join(" , ")} book_id={book.id}
-                              book_cover={book.imageLinks.thumbnail} book_shelf="wantToRead" changeShelves={this._moveBookShelves.bind(this)} />
-                            </li>
-                        );
-                      })}
-                      
-                    </ol>
-                    )
-                    }
-                  </div>
-                </div>
-                <div className="bookshelf">
-                  <h2 className="bookshelf-title">Read</h2>
-                  <div className="bookshelf-books">
-                    {
-                    this.state.loadingRequest ? 
-                    (
-                      <div>
-                      <SyncLoader loading={true} />
-                      <p>Carregando sua prateleira</p>
-                      </div>
-                    )
-                    :
-                    (
-                      <ol className="books-grid">
-                      {this.state['read'].map((book) => {
-                        return (
-                            <li key={book.id}>
-                              <Book book_title={book.title} book_authors={book.authors.join(" , ")} book_id={book.id}
-                              book_cover={book.imageLinks.thumbnail} book_shelf="read" changeShelves={this._moveBookShelves.bind(this)} />
-                            </li>
-                        );
-                      })}
-                      
-                    </ol>
-                    )
-                    }
-                  </div>
-                </div>
+                )
+                :
+                (
+                  <ol className="books-grid">
+                  {this.props.currentlyReading.map((book) => {
+                    return (
+                        <li key={book.id}>
+                          <Book book_title={book.title} book_authors={book.authors.join(" , ")} book_id={book.id}
+                          book_cover={book.imageLinks.thumbnail} book_shelf="currentlyReading" changeShelves={this._gettingBookFromShelf.bind(this)} />
+                        </li>
+                    );
+                  })}
+                  
+                </ol>
+                )
+              }                    
               </div>
             </div>
-            <div className="open-search">
-              <a onClick={() => this.setState({ showSearchPage: true })}>Add a book</a>
+            <div className="bookshelf">
+              <h2 className="bookshelf-title">Want to Read</h2>
+              <div className="bookshelf-books">
+                {
+                this.props.loadingRequest ? 
+                (
+                  <div>
+                  <SyncLoader loading={true} />
+                  <p>Carregando sua prateleira</p>
+                  </div>
+                )
+                :
+                (
+                  <ol className="books-grid">
+                  {this.props.wantToRead.map((book) => {
+                    console.log(book);
+                    return (
+                        <li key={book.id}>
+                          <Book book_title={book.title} book_authors={book.authors.join(" , ")} book_id={book.id}
+                          book_cover={book.imageLinks.thumbnail} book_shelf="wantToRead" changeShelves={this._gettingBookFromShelf.bind(this)} />
+                        </li>
+                    );
+                  })}
+                  
+                </ol>
+                )
+                }
+              </div>
+            </div>
+            <div className="bookshelf">
+              <h2 className="bookshelf-title">Read</h2>
+              <div className="bookshelf-books">
+                {
+                this.props.loadingRequest ? 
+                (
+                  <div>
+                  <SyncLoader loading={true} />
+                  <p>Carregando sua prateleira</p>
+                  </div>
+                )
+                :
+                (
+                  <ol className="books-grid">
+                  {this.props.read.map((book) => {
+                    return (
+                        <li key={book.id}>
+                          <Book book_title={book.title} book_authors={book.authors.join(" , ")} book_id={book.id}
+                          book_cover={book.imageLinks.thumbnail} book_shelf="read" changeShelves={this._gettingBookFromShelf.bind(this)} />
+                        </li>
+                    );
+                  })}
+                  
+                </ol>
+                )
+                }
+              </div>
             </div>
           </div>
-        )}
+        </div>
+        <div className="open-search">
+          <Link to="/add-book">Add a book</Link>
+          {/*<a onClick={this.props.changePageState}>Add a book</a>*/}
+        </div>
       </div>
     )
   }
