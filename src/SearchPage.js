@@ -2,7 +2,7 @@ import React from 'react'
 import * as BooksAPI from './BooksAPI'
 import './App.css'
 import Book from './Book.js'
-
+import { Link } from 'react-router-dom'
 
 export default class SearchPage extends React.Component{
 
@@ -29,27 +29,48 @@ export default class SearchPage extends React.Component{
 
 
 		BooksAPI.search(event.target.value).then((data) => {
+      console.log("OLD DATA");
 			console.log(data);
 
       // PARA TODOS OS LIVROS DA PRATELEIRA
       // SEPARAMOS UM NOVO ARRAY SE ELE ESTIVER PRESENTE NO CONJUNTO DOS LIVROS RETORNADOS DA PESQUISA
-      let commonBooksOnData = this.props.booksOnShelves.filter((book) => {
-        let book_matched = data.find((book_data) =>{
-          if(book_data.id == book.id){
-            return book;
-          }
-        });
-        return book_matched;
+      // let commonBooksOnData = this.props.booksOnShelves.filter((book) => {
+      //   let book_matched = data.find((book_data) =>{
+      //     if(book_data.id == book.id){
+      //       return book;
+      //     }
+      //   });
+      //   return book_matched;
+      // });
+      // console.log("LIVROS EM COMUM");
+      // console.log(commonBooksOnData);
+
+
+      // let mod = data.map((book) => {
+      //   return this.props.booksOnShelves.find((book_on_shelf) => (book_on_shelf.id == book.id))
+      // });
+
+
+      let newBooks = data.map((book) => {
+        let book_matched = this.props.booksOnShelves.find((book_on_shelf) => (book_on_shelf.id == book.id));
+        if(book_matched != null){
+          return book_matched;
+        }else{
+          return book;
+        }
       });
-      console.log("LIVROS EM COMUM");
-      console.log(commonBooksOnData);
 
-      let booksUpdated = Object.assign(data, commonBooksOnData);
-      console.log("MODIFICADOS");
+      console.log("LIVROS RETORNADOS MERGED");
       console.log(data);
-      console.log(booksUpdated);
+      // console.log(mod);
+      console.log(newBooks);
 
-			this.setState({booksQueried: data});
+      // let booksUpdated = Object.assign(data, commonBooksOnData);
+      // console.log("MODIFICADOS");
+      // console.log(data);
+      // console.log(booksUpdated);
+
+			this.setState({booksQueried: newBooks});
 			console.log(this.state.booksQueried);
 		});
 	}
@@ -58,7 +79,8 @@ export default class SearchPage extends React.Component{
 		return (
 			<div className="search-books">
             <div className="search-books-bar">
-              <a className="close-search" onClick={() => this.props.showSearchPage(false)}>Close</a>
+             
+              <Link to="/" className="close-search">Close</Link>
               <div className="search-books-input-wrapper">
                 {/*
                   NOTES: The search from BooksAPI is limited to a particular set of search terms.
