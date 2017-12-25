@@ -13,11 +13,6 @@ class Book extends React.Component {
 	handleChange(event){
 		this.setState({shelfSelected: event.target.value});
 
-		console.log("Book");
-		console.log(event.target.value);
-		console.log(this.props.book_shelf);
-		console.log(this.state.shelfSelected);
-
 		// USANDO A CALLBACK FUNCTION PASSADA PARA ATUALIZAR A PRATELEIRA NO SERVIDOR
 		this.props.changeShelves(this.props.book_id, this.props.book_shelf, event.target.value);
 		console.log(this.state.shelfSelected);

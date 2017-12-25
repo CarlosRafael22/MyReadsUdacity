@@ -19,37 +19,8 @@ export default class SearchPage extends React.Component{
 
 	handleChange(event){
 		this.setState({searchQuery: event.target.value});
-		console.log(event.target.value);
-    console.log("LIVROS NAS PRATELEIRAS");
-    console.log(this.props.booksOnShelves);
-
-    // PEGANDO OS LIVROS QUE ESTAO NAS PRATELEIRAS E VERIFICANDO SE ESTAO ENTRE OS QUE RETORNARAM DA PESQUISA
-    // SE ESTIVEREM PRESENTES ENTAO ADICIONAMOS O FIELD shelf NO OBJECT Q REPRESENTA O LIVRO PARA, ASSIM,
-    // SER MOSTRADO NO <select />
-
 
 		BooksAPI.search(event.target.value).then((data) => {
-      console.log("OLD DATA");
-			console.log(data);
-
-      // PARA TODOS OS LIVROS DA PRATELEIRA
-      // SEPARAMOS UM NOVO ARRAY SE ELE ESTIVER PRESENTE NO CONJUNTO DOS LIVROS RETORNADOS DA PESQUISA
-      // let commonBooksOnData = this.props.booksOnShelves.filter((book) => {
-      //   let book_matched = data.find((book_data) =>{
-      //     if(book_data.id == book.id){
-      //       return book;
-      //     }
-      //   });
-      //   return book_matched;
-      // });
-      // console.log("LIVROS EM COMUM");
-      // console.log(commonBooksOnData);
-
-
-      // let mod = data.map((book) => {
-      //   return this.props.booksOnShelves.find((book_on_shelf) => (book_on_shelf.id == book.id))
-      // });
-
 
       let newBooks = data.map((book) => {
         let book_matched = this.props.booksOnShelves.find((book_on_shelf) => (book_on_shelf.id == book.id));
@@ -60,18 +31,7 @@ export default class SearchPage extends React.Component{
         }
       });
 
-      console.log("LIVROS RETORNADOS MERGED");
-      console.log(data);
-      // console.log(mod);
-      console.log(newBooks);
-
-      // let booksUpdated = Object.assign(data, commonBooksOnData);
-      // console.log("MODIFICADOS");
-      // console.log(data);
-      // console.log(booksUpdated);
-
 			this.setState({booksQueried: newBooks});
-			console.log(this.state.booksQueried);
 		});
 	}
 

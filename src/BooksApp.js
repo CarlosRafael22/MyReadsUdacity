@@ -20,9 +20,6 @@ class BooksApp extends React.Component {
 
   render() {
 
-    console.log("MOSTRANDO O PROPS DO BooksApp");
-    console.log(this.props);
-
     return (
       <div className="list-books">
         <div className="list-books-title">
@@ -30,6 +27,15 @@ class BooksApp extends React.Component {
         </div>
         <div className="list-books-content">
           <div>
+            {
+              this.props.bookChangedShelf ?
+              (                
+                <div className="alert alert-success visible" role="alert">Livro transferido de prateleira com sucesso.</div>
+              )
+              :
+              null
+            }
+            
             <div className="bookshelf">
               <h2 className="bookshelf-title">Currently Reading</h2>
               <div className="bookshelf-books">
@@ -119,7 +125,6 @@ class BooksApp extends React.Component {
         </div>
         <div className="open-search">
           <Link to="/add-book">Add a book</Link>
-          {/*<a onClick={this.props.changePageState}>Add a book</a>*/}
         </div>
       </div>
     )
