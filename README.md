@@ -1,3 +1,8 @@
+# Comentário
+
+MyReads desenvolvido utilizando uma dependência nova (react-spinners) para que um spinner seja mostrado ao carregarmos os livros do usuário quando atualizamos a página principal do app.
+Para fazer o projeto, criei um componente principal( App.js ) que serve como Container Component e lida com todos os estados dos Componentes abaixo dele, assim como as funções de atualizar a troca de prateleira e adição de livros às prateleiras na área de search. Para manter os livros em sync na área de pesquisa e na área das prateleiras do App, tive que colocar todos os estados que antes estariam separados nos dois outros componentes (BookApp, SearchPage) como estado do componente pai App. Para isso, também passei funções que modificam esses estados como props à esses componentes filhos. O componente Book é só um Presentation Component que é um Controlled Component também e que serve para não repetir o código dos livros.
+
 # MyReads Project
 
 This is the starter template for the final assessment project for Udacity's React Fundamentals course. The goal of this template is to save you time by providing a static example of the CSS and HTML markup that may be used, but without any of the React code that is needed to complete the project. If you choose to start with this template, your job will be to add interactivity to the app by refactoring the static code in this template.

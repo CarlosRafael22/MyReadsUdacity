@@ -12,6 +12,7 @@ class BooksApp extends React.Component {
     super(props);
   }
 
+  // METODO PARA PEGAR O OBJETO book E ENVIAR PARA A CALLBACK JUNTO COM OS DADOS FORNECIDOS PELO BOOK COMPONENT
   _gettingBookFromShelf(id, currentShelf, finalShelf){
     let book = this.props[currentShelf].find((book) => book.id == id);
     console.log(book);
